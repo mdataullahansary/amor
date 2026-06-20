@@ -93,7 +93,7 @@ export function MovieInterface({ userId, relationshipId }: { userId: string, rel
             <div className="aspect-video w-full bg-card/10 flex flex-col items-center justify-center text-muted-foreground relative">
                {videoUrl ? (
                  <Player 
-                   url={videoUrl} 
+                   url={videoUrl.startsWith('http') ? videoUrl : `https://${videoUrl}`} 
                    controls 
                    playing={true}
                    width="100%" 
