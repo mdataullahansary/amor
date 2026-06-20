@@ -24,8 +24,8 @@ export default async function TimelinePage() {
     .eq('relationship_id', userData.relationship_id)
 
   const timelineEvents = [
-    ...(diaries || []).map(d => ({ type: 'diary', date: new Date(d.created_at), data: d })),
-    ...(movies || []).map(m => ({ type: 'movie', date: new Date(m.created_at), data: m }))
+    ...(diaries || []).map(d => ({ type: 'diary' as const, date: new Date(d.created_at), data: d })),
+    ...(movies || []).map(m => ({ type: 'movie' as const, date: new Date(m.created_at), data: m }))
   ].sort((a, b) => b.date.getTime() - a.date.getTime())
 
   return (
