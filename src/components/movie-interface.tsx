@@ -8,6 +8,7 @@ import { Play, Link as LinkIcon, Users, Video } from 'lucide-react'
 import { LiveKitRoom, VideoConference, RoomAudioRenderer } from '@livekit/components-react'
 import '@livekit/components-styles'
 import ReactPlayer from 'react-player'
+import { createClient } from '@/lib/supabase/client'
 const Player = ReactPlayer as any;
 
 export function MovieInterface({ userId, relationshipId }: { userId: string, relationshipId: string }) {
@@ -15,8 +16,39 @@ export function MovieInterface({ userId, relationshipId }: { userId: string, rel
   const [inRoom, setInRoom] = useState(false)
   const [token, setToken] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
-
+  const [activeMovieUrl, setActiveMovieUrl] = useState<string | null>(null)
+  
+  const supabase = createClient()
   const roomName = `movie_${relationshipId}`
+
+  useEffect(() => {
+    const fetchMovie = async () => {
+      const { data } = await supabase.from('relationships').select('current_movie_url').eq('id', relationshipId).single()
+      if (data?.current_movie_url) {
+        setActiveMovieUrl(data.current_movie_url)
+        setVideoUrl(data.current_movie_url)
+      }
+    }
+    fetchMovie()
+
+    const channel = supabase
+      .channel('public:relationships')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'relationships', filter: `id=eq.${relationshipId}` }, (payload) => {
+         const newUrl = payload.new.current_movie_url
+         setActiveMovieUrl(newUrl)
+         if (newUrl) setVideoUrl(newUrl)
+      })
+      .subscribe()
+
+    return () => { supabase.removeChannel(channel) }
+  }, [relationshipId])
+
+  const handleStart = async () => {
+    if (videoUrl && videoUrl !== activeMovieUrl) {
+      await supabase.from('relationships').update({ current_movie_url: videoUrl }).eq('id', relationshipId)
+    }
+    setInRoom(true)
+  }
 
   useEffect(() => {
     if (inRoom) {
@@ -114,25 +146,46 @@ export function MovieInterface({ userId, relationshipId }: { userId: string, rel
 
       <Card className="bg-card border-border shadow-sm">
         <CardContent className="pt-6 space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Video URL (YouTube, Vimeo, MP4)</label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="https://youtube.com/watch?v=..." 
-                  className="pl-9 bg-input/50"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                />
+          {activeMovieUrl ? (
+            <div className="space-y-4 text-center py-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/20 text-primary mb-2 animate-pulse shadow-lg shadow-primary/20">
+                <Video className="h-8 w-8" />
               </div>
-              <Button onClick={() => setInRoom(true)}>
-                <Play className="h-4 w-4 mr-2" />
-                Start
+              <div>
+                <h3 className="font-semibold text-2xl font-heading text-primary">Movie Room is Active!</h3>
+                <p className="text-sm text-muted-foreground mb-4">Your partner is waiting with a movie queued up.</p>
+              </div>
+              <Button onClick={() => setInRoom(true)} className="w-full text-lg py-6 shadow-md" size="lg">
+                <Play className="h-5 w-5 mr-2" />
+                Join Room
               </Button>
+              <Button variant="ghost" className="text-xs text-muted-foreground hover:text-destructive" onClick={async () => {
+                 await supabase.from('relationships').update({ current_movie_url: null }).eq('id', relationshipId)
+                 setActiveMovieUrl(null)
+                 setVideoUrl('')
+              }}>Cancel Session</Button>
             </div>
-            <p className="text-xs text-muted-foreground">Note: LiveKit keys must be set in .env.local</p>
-          </div>
+          ) : (
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Video URL (YouTube, Vimeo, MP4)</label>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <LinkIcon className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="https://youtube.com/watch?v=..." 
+                    className="pl-9 bg-input/50"
+                    value={videoUrl}
+                    onChange={(e) => setVideoUrl(e.target.value)}
+                  />
+                </div>
+                <Button onClick={handleStart} disabled={!videoUrl}>
+                  <Play className="h-4 w-4 mr-2" />
+                  Start
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">Note: LiveKit keys must be set in .env.local</p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
