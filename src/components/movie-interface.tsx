@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Play, Link as LinkIcon, Users, Video } from 'lucide-react'
 import { LiveKitRoom, VideoConference, RoomAudioRenderer } from '@livekit/components-react'
 import '@livekit/components-styles'
-import ReactPlayer from 'react-player'
 import { createClient } from '@/lib/supabase/client'
-const Player = ReactPlayer as any;
+import dynamic from 'next/dynamic'
+
+const Player = dynamic(() => import('react-player'), { ssr: false }) as any;
 
 export function MovieInterface({ userId, relationshipId }: { userId: string, relationshipId: string }) {
   const [videoUrl, setVideoUrl] = useState('')
