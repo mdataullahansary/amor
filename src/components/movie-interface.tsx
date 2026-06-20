@@ -8,6 +8,7 @@ import { Play, Link as LinkIcon, Users, Video } from 'lucide-react'
 import { LiveKitRoom, VideoConference, RoomAudioRenderer } from '@livekit/components-react'
 import '@livekit/components-styles'
 import ReactPlayer from 'react-player'
+const Player = ReactPlayer as any;
 
 export function MovieInterface({ userId, relationshipId }: { userId: string, relationshipId: string }) {
   const [videoUrl, setVideoUrl] = useState('')
@@ -59,8 +60,7 @@ export function MovieInterface({ userId, relationshipId }: { userId: string, rel
             {/* Real Video Player would go here, syncing playback via Supabase Broadcast */}
             <div className="aspect-video w-full bg-card/10 flex flex-col items-center justify-center text-muted-foreground relative">
                {videoUrl ? (
-                 // @ts-ignore - react-player type exports are currently bugged with url prop
-                 <ReactPlayer 
+                 <Player 
                    url={videoUrl} 
                    controls 
                    playing={true}
