@@ -20,9 +20,6 @@ export default function LoginPage() {
 
     if (result?.error) {
       toast.error(result.error)
-    } else if (result?.success) {
-      toast.success(result.success)
-      // The server action handles the redirect on successful login
     }
   }
 
