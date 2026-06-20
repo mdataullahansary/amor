@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Heart } from 'lucide-react'
+import { Heart, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Toaster } from '@/components/ui/sonner'
 
@@ -62,7 +62,12 @@ export default function LoginPage() {
               />
             </div>
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground" disabled={loading}>
-              {loading ? 'Authenticating...' : 'Sign In / Sign Up'}
+              {loading ? (
+                <div className="flex items-center">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Authenticating...
+                </div>
+              ) : 'Sign In / Sign Up'}
             </Button>
           </form>
         </CardContent>

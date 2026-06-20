@@ -28,12 +28,19 @@ export default async function DashboardPage() {
     const { count: diaries } = await supabase.from('diary_entries').select('*', { count: 'exact', head: true }).eq('relationship_id', relationshipId)
     memoryCount = (galleries || 0) + (diaries || 0)
   }
+  const name = user?.email?.startsWith('ata') ? 'Ata' : user?.email?.startsWith('anisa') ? 'Anisa' : 'Love'
 
   return (
     <div className="p-4 sm:p-8 max-w-5xl mx-auto space-y-8 mt-4 sm:mt-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-heading font-semibold text-foreground">Overview</h1>
-        <p className="text-muted-foreground mt-1">Your relationship at a glance.</p>
+      <header className="mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-heading font-semibold text-foreground">Welcome back, {name}</h1>
+          <p className="text-muted-foreground mt-1">Your relationship at a glance.</p>
+        </div>
+        <div className="flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/20 w-fit">
+          <Heart className="w-4 h-4 text-primary fill-primary" />
+          <span className="text-sm font-medium text-primary">Ata & Anisa</span>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">

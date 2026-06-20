@@ -32,6 +32,9 @@ export async function login(formData: FormData) {
         password,
       })
       if (signUpError) {
+        if (signUpError.message.includes('User already registered')) {
+          return { error: 'Incorrect password.' }
+        }
         return { error: signUpError.message }
       }
       // Successfully signed up. Since email confirmation is off, they are logged in.
