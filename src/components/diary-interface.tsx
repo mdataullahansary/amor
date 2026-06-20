@@ -90,11 +90,9 @@ export function DiaryInterface({ userId, relationshipId }: { userId: string, rel
         </div>
         
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Entry
-            </Button>
+          <DialogTrigger render={<Button />}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Entry
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px] bg-card border-border text-foreground">
             <DialogHeader>
