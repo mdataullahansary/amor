@@ -95,7 +95,6 @@ export function MovieInterface({ userId, relationshipId }: { userId: string, rel
                  <Player 
                    url={videoUrl.startsWith('http') ? videoUrl : `https://${videoUrl}`} 
                    controls 
-                   playing={true}
                    width="100%" 
                    height="100%"
                    className="absolute top-0 left-0"
