@@ -19,6 +19,33 @@ interface Message {
   created_at: string
 }
 
+const playNotificationSound = () => {
+  try {
+    const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContext) return;
+    
+    const audioCtx = new AudioContext();
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    oscillator.type = 'sine';
+    // A soft, quick pop sound
+    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); 
+    oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+    
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + 0.1);
+  } catch(e) {
+    // Silently fail if audio context is restricted by the browser
+  }
+}
+
 export function ChatInterface({ userId, relationshipId }: { userId: string, relationshipId: string }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -59,8 +86,14 @@ export function ChatInterface({ userId, relationshipId }: { userId: string, rela
           filter: `relationship_id=eq.${relationshipId}`,
         },
         (payload) => {
-          setMessages((prev) => [...prev, payload.new as Message])
+          const newMsg = payload.new as Message;
+          setMessages((prev) => [...prev, newMsg])
           scrollToBottom()
+          
+          // Play sound if the message is from the partner
+          if (newMsg.sender_id !== userId) {
+            playNotificationSound()
+          }
         }
       )
       .subscribe()
