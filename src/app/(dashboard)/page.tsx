@@ -16,10 +16,9 @@ export default async function DashboardPage() {
   let memoryCount = 0
 
   if (relationshipId) {
-    const { data: relationship } = await supabase.from('relationships').select('start_date').eq('id', relationshipId).single()
-    if (relationship) {
-      daysTogether = Math.floor((new Date().getTime() - new Date(relationship.start_date).getTime()) / (1000 * 3600 * 24))
-    }
+    // Hardcoded start date requested by user
+    const startDate = new Date("2025-11-08T00:39:00")
+    daysTogether = Math.floor((new Date().getTime() - startDate.getTime()) / (1000 * 3600 * 24))
 
     const { count: msgs } = await supabase.from('messages').select('*', { count: 'exact', head: true }).eq('relationship_id', relationshipId)
     messageCount = msgs || 0
