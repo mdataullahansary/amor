@@ -11,6 +11,11 @@ export async function login(formData: FormData) {
     return { error: 'Email and password are required' }
   }
 
+  const allowedEmails = ['ata@amor.com', 'anisa@amor.com']
+  if (!allowedEmails.includes(email.toLowerCase())) {
+    return { error: 'Access denied. This is a private space.' }
+  }
+
   const supabase = await createClient()
 
   // Try to sign in
